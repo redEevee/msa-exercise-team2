@@ -37,19 +37,16 @@ public class GuestbookController {
     }
 
     // 글 수정
-    @GetMapping("/apiguestbook/read{id}")
-    public Guestbook readGuestbook(@PathVariable Long id) {
+    @GetMapping("/{id}")
+    public ResponseEntity<Guestbook> readGuestbook(@PathVariable Long id) {
         log.info("Read guestbook with id {}", id);
-        Optional<Guestbook> guestbook = guestbookRepository.findById(id);
-
-        if (guestbook.isEmpty()) {
-            return null;
-        }
-        return guestbook.get();
+        return guestbookRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
     // 글 삭제
-    @DeleteMapping("/api/guestbook/{id}")
+    @DeleteMapping("{id}")
     public ResponseEntity<String> deleteGuestbook(@PathVariable Long id) {
         Optional<Guestbook> guestbook = guestbookRepository.findById(id);
 
