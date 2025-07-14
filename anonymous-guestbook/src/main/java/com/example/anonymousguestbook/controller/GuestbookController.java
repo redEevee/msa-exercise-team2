@@ -3,10 +3,15 @@ package com.example.anonymousguestbook.controller;
 import com.example.anonymousguestbook.entity.Guestbook;
 import com.example.anonymousguestbook.repository.GuestbookRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
+@Slf4j
 @CrossOrigin(origins = "http://localhost:3000")
 @RestController
 @RequestMapping("/api/guestbook")
@@ -29,5 +34,27 @@ public class GuestbookController {
                 .stream()
                 .sorted((a, b) -> b.getCreatedAt().compareTo(a.getCreatedAt()))
                 .toList();
+    }
+
+    // 글 수정
+    @GetMapping("/{id}")
+    public ResponseEntity<Guestbook> readGuestbook(@PathVariable Long id) {
+        log.info("Read guestbook with id {}", id);
+        return guestbookRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    // 글 삭제
+    @DeleteMapping("{id}")
+    public ResponseEntity<String> deleteGuestbook(@PathVariable Long id) {
+        Optional<Guestbook> guestbook = guestbookRepository.findById(id);
+
+        if (guestbook.isPresent()) {
+            guestbookRepository.deleteById(id);
+            return ResponseEntity.ok("삭제 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 ID의 방명록이 없습니다.");
+        }
     }
 }
