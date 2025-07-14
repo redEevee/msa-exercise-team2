@@ -37,12 +37,20 @@ public class GuestbookController {
     }
 
     // 글 수정
-    @GetMapping("/{id}")
-    public ResponseEntity<Guestbook> readGuestbook(@PathVariable Long id) {
-        log.info("Read guestbook with id {}", id);
-        return guestbookRepository.findById(id)
-                .map(ResponseEntity::ok)
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    @PutMapping("/{id}")
+    public ResponseEntity<String> updateGuestbook(@PathVariable Long id, @RequestBody Guestbook updateGuestbook) {
+        Optional<Guestbook> optionalGuestbook = guestbookRepository.findById(id);
+
+        if (optionalGuestbook.isPresent()) {
+            Guestbook existing = optionalGuestbook.get();
+            existing.setContent(updateGuestbook.getContent());
+            existing.setNickname(updateGuestbook.getNickname());
+            guestbookRepository.save(existing);
+
+            return ResponseEntity.ok("수정 성공");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
     }
 
     // 글 삭제
