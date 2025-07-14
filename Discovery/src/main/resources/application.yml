@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: discovery
+
+server:
+  port: xxxx
+
+eureka:
+  instance:
+    hostname: localhost
+
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+
+    service-url:
+      defaultZone: http://localhost:xxxx/eureka/
+
+    server:
+      enable-self-preservation: false
+
+    cluster:
+      peer-eureka-nodes: http://localhost:xxxx/eureka/

@@ -1,7 +1,9 @@
 import React from 'react';
+import styled from 'styled-components';
 
 function GuestbookList({ list }) {
     return (
+        <Container>
         <ul>
             {list.map((item) => (
                 <li key = {item.id}>
@@ -11,7 +13,16 @@ function GuestbookList({ list }) {
                 </li>
             ))}
         </ul>
+        </Container>
     );
 }
 
 export default GuestbookList;
+
+const Container = styled.div`
+height: auto;
+width: auto;
+margin: 10px;
+padding: 10px;
+background-color: red;
+`;

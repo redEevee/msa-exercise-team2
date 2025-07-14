@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: gateway
+
+  cloud:
+    gateway:
+      routes:
+        - id: simple-service
+          uri: lb://SIMPLE
+          predicates:
+            - Path=/api/simple/**
+          filters:
+            - StripPrefix=2
+            - SetRequestHeader=Accept, application/json
+
+        - id: board-service
+          uri: lb://BOARD
+          predicates:
+            - Path=/api/board/**
+          filters:
+            - StripPrefix=1
+            - SetRequestHeader=Accept, application/json
+
+        - id: account-service
+          uri: lb://ACCOUNT
+          predicates:
+            - Path=/api/account/**
+          filters:
+            - StripPrefix=1
+            - SetRequestHeader=Accept, application/json
+
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: DEBUG
+
+server:
+  port: xxxx
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:xxxx/eureka
+
