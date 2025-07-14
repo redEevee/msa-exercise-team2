@@ -1,0 +1,14 @@
+Subject: [PATCH] 25. 7. 14. 오후 1:52, 체크아웃 전에 커밋되지 않은 변경 내용 [변경]
+---
+Index: .idea/gradle.xml
+===================================================================
+diff --git a/.idea/gradle.xml b/.idea/gradle.xml
+--- a/.idea/gradle.xml	(revision 4edfd50782237d5c6d898ba9acf5b3b8e275025b)
++++ b/.idea/gradle.xml	(date 1752468659239)
+@@ -1,5 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
++  <component name="GradleMigrationSettings" migrationVersion="1" />
+   <component name="GradleSettings">
+     <option name="linkedExternalProjectsSettings">
+       <GradleProjectSettings>

@@ -10,6 +10,7 @@
         <module name="anonymous-guestbook.main" />
       </profile>
     </annotationProcessing>
+<<<<<<< Updated upstream
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
@@ -17,5 +18,11 @@
       <module name="anonymous-guestbook.main" options="-parameters" />
       <module name="anonymous-guestbook.test" options="-parameters" />
     </option>
+=======
+    <bytecodeTargetLevel target="17" />
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_STRING" value="-parameters" />
+>>>>>>> Stashed changes
   </component>
 </project>

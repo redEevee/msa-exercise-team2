@@ -2,7 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/msa-exercise-team2.iml" filepath="$PROJECT_DIR$/.idea/msa-exercise-team2.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/anonymous-guestbook.iml" filepath="$PROJECT_DIR$/.idea/modules/anonymous-guestbook.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/anonymous-guestbook.test.iml" filepath="$PROJECT_DIR$/.idea/modules/anonymous-guestbook.test.iml" />
     </modules>
   </component>
 </project>
