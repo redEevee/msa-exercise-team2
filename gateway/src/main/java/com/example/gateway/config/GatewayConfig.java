@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class GatewayConfig {
 
-    @Value("lb//GATEWAY")
+    @Value("lb//SIMPLE")
     private String gatewayServiceUri;
 
     @Bean
