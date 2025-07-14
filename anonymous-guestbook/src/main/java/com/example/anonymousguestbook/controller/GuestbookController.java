@@ -56,10 +56,13 @@ public class GuestbookController {
     // 글 삭제
     @DeleteMapping("{id}")
     public ResponseEntity<String> deleteGuestbook(@PathVariable Long id) {
+        log.info("DELETE 요청 도착: {}", id);
+
         Optional<Guestbook> guestbook = guestbookRepository.findById(id);
 
         if (guestbook.isPresent()) {
             guestbookRepository.deleteById(id);
+            log.info("DELETE: {}", id);
             return ResponseEntity.ok("삭제 성공");
         } else {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 ID의 방명록이 없습니다.");
