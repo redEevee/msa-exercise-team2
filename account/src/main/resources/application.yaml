@@ -3,10 +3,10 @@ spring:
     name: account
 
   datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/anonymous_guestbook?useSSL=false&useUnicode=true&serverTimezone=Asia/Seoul
+    url: jdbc:mysql://localhost:3306/anonymous_guestbook?serverTimezone=Asia/Seoul
     username: root
     password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
   jpa:
     hibernate:
@@ -18,4 +18,4 @@ spring:
 
 jwt:
   secret: my-secret-key
-  expiration: 3600000
+  expiration: 3600000  # 1시간

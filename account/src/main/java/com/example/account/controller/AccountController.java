@@ -1,15 +1,17 @@
 package com.example.account.controller;
 
+import com.example.account.dto.request.LoginRequest;
+import com.example.account.dto.request.SignupRequest;
+import com.example.account.dto.response.AccountResponse;
+import com.example.account.service.AccountService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
-@CrossOrigin(origins = "http://localhost:3000")
 @RestController
-@RequestMapping("/api/guestbook/account")
+@RequestMapping("/api/account")
 @RequiredArgsConstructor
+@CrossOrigin(origins = "http://localhost:3000")
 public class AccountController {
 
     private final AccountService accountService;
