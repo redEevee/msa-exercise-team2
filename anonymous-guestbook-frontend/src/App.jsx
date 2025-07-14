@@ -26,6 +26,18 @@ function App() {
         fetchList(); // 작성 후 목록 생신
     }
 
+    const handleDelete = async (id) => {
+        setList((prevList) => prevList.filter((item) => item.id !== id));
+    };
+
+    const handleUpdate = async (id, updatedItem) => {
+        setList((prevList) =>
+            prevList.map((item) =>
+                item.id === id ? { ...item, ...updatedItem } : item
+            )
+        );
+    };
+
     return (
        
         <Container>
