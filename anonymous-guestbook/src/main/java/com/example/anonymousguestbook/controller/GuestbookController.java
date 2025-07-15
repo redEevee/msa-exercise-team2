@@ -21,7 +21,7 @@ public class GuestbookController {
     private final GuestbookRepository guestbookRepository;
 
     // 글 작성
-    @PostMapping
+    @PostMapping("/create")
     public Guestbook create(@RequestBody Guestbook guestbook) {
         return guestbookRepository.save(guestbook);
     }
@@ -58,9 +58,10 @@ public class GuestbookController {
 
     // 글 삭제
     @DeleteMapping("{id}")
+    //다들 화이팅하십시오 나는 프론트나 깔짝하다가 끝내야겠다
+    //내 정신건강을 위해서 포기를 아는 남자
     public ResponseEntity<String> deleteGuestbook(@PathVariable Long id, @RequestBody Guestbook request) {
         Optional<Guestbook> optional = guestbookRepository.findById(id);
-
         if (optional.isPresent()) {
             Guestbook guestbook = optional.get();
 

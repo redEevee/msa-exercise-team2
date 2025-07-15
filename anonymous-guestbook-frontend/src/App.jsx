@@ -5,6 +5,7 @@ import GuestbookPage from './pages/GuestbookPage';
 import AuthForm from "./components/AuthForm";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import MainPage from './pages/MainPage';
+import LoginPage from './pages/LoginPage';
 
 function App() {
 
@@ -16,6 +17,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<MainPage />} />
                 <Route path="guestbookpage" element={<GuestbookPage />} />
+                <Route path="loginpage" element={<LoginPage/>}/>
             </Routes>
         </BrowserRouter>
 
