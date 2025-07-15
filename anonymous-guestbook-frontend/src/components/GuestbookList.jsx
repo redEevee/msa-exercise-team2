@@ -6,9 +6,9 @@ function GuestbookList({ list, onDelete, onUpdate }) {
     const [editingId, setEditingId] = useState(null);
     const [editContent, setEditContent] = useState('');
     const [editNickname, setEditNickname] = useState('');
-    const [guestbookList, setGuestbookList] = useState([]);
 
-
+console.log('onDelete:', onDelete);
+console.log('typeof onDelete:', typeof onDelete);
 
     // 수정 시작
     const startEdit = (item) => {
@@ -31,9 +31,7 @@ function GuestbookList({ list, onDelete, onUpdate }) {
     };
 
     return (
-        <div>
-            <Container>
-            <ul>
+        <ul>
                 {list.map(item => (
                     <li key={item.id}>
                         {editingId === item.id ? (
@@ -52,26 +50,17 @@ function GuestbookList({ list, onDelete, onUpdate }) {
                             </>
                         ) : (
                             <>
-                                <strong>{item.nickname}</strong>
-                                <p>{item.content}</p>
+                    <strong>{item.nickname}</strong>
+                    <p>{item.content}</p>
                                 <button onClick={() => startEdit(item)}>수정</button>
                                 <button onClick={() => onDelete(item.id)}>삭제</button>
                             </>
                         )}
-                    </li>
-                ))}
-            </ul>
-                </Container>
-        </div>
+                </li>
+            ))}
+        </ul>
     );
 }
 
 export default GuestbookList;
 
-const Container = styled.div`
-height: auto;
-width: auto;
-margin: 10px;
-padding: 10px;
-background-color: red;
-`;

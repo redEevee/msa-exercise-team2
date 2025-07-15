@@ -4,11 +4,12 @@ import './index.css';
 
 import reportWebVitals from './reportWebVitals';
 import GuestbookPage from './components/GuestbookPage';
+import App from './App';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-      <GuestbookPage />
+      <App />
   </React.StrictMode>
 );
 
