@@ -33,6 +33,7 @@ export const signup = (data) => aapi.post('/signup', data);
 export const login = (data) => aapi.post('/login', data);
 
 // 이메일 중복 체크
-export const checkEmailDuplicate = (email) => aapi.get('/check-email',{params:{email}});
+export const checkEmailDuplicate = (email) =>
+  aapi.get('/check-email', { params: { email } });
 
 export default api;
