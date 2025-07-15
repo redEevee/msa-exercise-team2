@@ -1,105 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import { postGuestbook, getGuestbookList } from './api';
 import styled from 'styled-components';
-import GuestbookPage from './components/GuestbookPage';
+import GuestbookPage from './pages/GuestbookPage';
 import AuthForm from "./components/AuthForm";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 function App() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
 
-       <>
-           <div>
-               <AuthForm />
-           </div>
-        <Container>
-            <h1>익명 방명록</h1>
-            <ToggleButton onClick={() => setIsOpen(!isOpen)}>
-        {isOpen ? '게시판 닫기' : '게시판 열기'}
-      </ToggleButton>
-      {!isOpen && (
-                <ImageWrapper>
-                    <RandomImage
-                        src="https://picsum.photos/400/300"
-                        alt="random"
-                    />
-                </ImageWrapper>
-            )}
-       <DropdownContainer isOpen={isOpen}>
-  {isOpen && 
-    <GuestbookPage/>
-  }
-</DropdownContainer>
-        </Container>
-       </>
+        <>
+            <div>
+                <AuthForm />
+            </div>
+            <BrowserRouter>
+                <Routes>
+                    <Route index element={<GuestbookPage />} />
+                </Routes>
+            </BrowserRouter>
+        </>
     );
 }
 
 export default App;
-
-const Container = styled.div`
-  display: flex;
-  align-items: center;
-  flex-direction: column;
-  width: 100%;
-  min-width: 300px;
-  min-height: 500px;
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  border: 1px solid;
-  box-shadow: 0 14px 18px rgba(0, 0, 0, 0.2);
-`;
-
-
-const ToggleButton = styled.button`
-  background-color: #007bff;
-  color: white;
-  padding: 0.75rem 1.25rem;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  font-weight: bold;
-`;
-
-const DropdownContainer = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'isOpen'
-})`
-  margin-top: 1rem;
-  border: 3px solid #ddd;
-  border-radius: 0.5rem;
-  background-color: yellow;
-
-  max-height: ${(props) => (props.isOpen ? '1000px' : '0')};
-  overflow-y: auto;  
-  opacity: ${(props) => (props.isOpen ? 1 : 0)};
-  transition: max-height 0.4s ease, opacity 0.4s ease;
-`;
-
-
-const ImageWrapper = styled.div`
-  width: 100%;
-  max-width: 600px;
-  margin-top: 1rem;
-  padding: 0 1rem; /* ✅ 좌우 여백 추가 */
-  border-radius: 0.5rem;
-  overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  animation: fadeIn 0.6s ease forwards;
-
-  @keyframes fadeIn {
-    to {
-      opacity: 1;
-    }
-  }
-`;
-
-const RandomImage = styled.img`
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  display: block;
-  border-radius: 0.5rem;
-`;
