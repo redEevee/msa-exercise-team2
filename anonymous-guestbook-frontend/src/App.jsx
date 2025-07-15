@@ -2,14 +2,19 @@ import React, { useEffect, useState } from 'react';
 import { postGuestbook, getGuestbookList } from './api';
 import styled from 'styled-components';
 import GuestbookPage from './components/GuestbookPage';
+import AuthForm from "./components/AuthForm";
 
 function App() {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
+
        <>
+           <div>
+               <AuthForm />
+           </div>
         <Container>
-            <h1>🙅‍♀️익명 방명록🙅‍♂️</h1>
+            <h1>익명 방명록</h1>
             <ToggleButton onClick={() => setIsOpen(!isOpen)}>
         {isOpen ? '게시판 닫기' : '게시판 열기'}
       </ToggleButton>
