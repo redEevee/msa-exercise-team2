@@ -34,6 +34,6 @@ export const signup = (data) => api.post('/api/account/signup', data);
 export const login = (data) => api.post('/api/account/login', data);
 
 // 이메일 중복 체크
-export const checkEmailDuplicate = (email) => api.get('/api/account/check-email',{params:{email}});
+
 
 export default api;

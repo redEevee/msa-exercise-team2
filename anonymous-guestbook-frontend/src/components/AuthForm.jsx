@@ -73,12 +73,12 @@ const AuthForm = () => {
 
         } else {
             try {
-                await login({
+                const res = await login({
                     email: form.email,
                     password: form.password,
                 });
                 alert("로그인 성공!");
-                // 이후 토큰 저장 등 처리 가능
+                localStorage.setItem("token", res.data.token);
             } catch (err) {
                 alert("로그인 실패: 이메일 또는 비밀번호를 확인하세요.");
             }

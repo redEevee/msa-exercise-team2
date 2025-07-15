@@ -34,11 +34,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             // 토큰 유효성 검사
             if (jwtTokenProvider.validateToken(token)) {
                 // 유효한 경우 토큰에서 사용자 이름 추출
-                String username = jwtTokenProvider.getUsername(token);
+                String email = jwtTokenProvider.getEmail(token);
 
                 // Authentication 객체 생성 및 SecurityContextHolder에 등록
                 UsernamePasswordAuthenticationToken authentication =
-                        new UsernamePasswordAuthenticationToken(username, null, null); // 권한은 여기선 생략
+                        new UsernamePasswordAuthenticationToken(email, null, null); // 권한은 여기선 생략
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
             }
