@@ -4,22 +4,21 @@ import styled from 'styled-components';
 import GuestbookPage from './pages/GuestbookPage';
 import AuthForm from "./components/AuthForm";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import MainPage from './pages/MainPage';
 
 function App() {
-    const [isOpen, setIsOpen] = useState(false);
 
     return (
 
-        <>
-            <div>
-                <AuthForm />
-            </div>
-            <BrowserRouter>
-                <Routes>
-                    <Route index element={<GuestbookPage />} />
-                </Routes>
-            </BrowserRouter>
-        </>
+
+
+        <BrowserRouter>
+            <Routes>
+                <Route path="/" element={<MainPage />} />
+                <Route path="guestbookpage" element={<GuestbookPage />} />
+            </Routes>
+        </BrowserRouter>
+
     );
 }
 
