@@ -12,7 +12,9 @@ export const getGuestbookList = () => api.get('');  // 빈 문자열로 호출
 export const postGuestbook = (data) => api.post('', data);
 
 // 글 삭제
-export const deleteGuestbook = (id) => api.delete(`/${id}`);
+export const deleteGuestbook = (id, password) => api.delete(`/${id}`, {
+    data: { password },
+});
 
 // 글 수정
 export const updateGuestbook = (id, data) => api.put(`/${id}`, data);
