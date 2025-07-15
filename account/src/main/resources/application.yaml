@@ -16,6 +16,27 @@ spring:
       hibernate:
         format_sql: true
 
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      password: eddi@123
+
 jwt:
   secret: my-secret-key
   expiration: 3600000  # 1시간
+
+server:
+  port: 11335
+
+eureka:
+  client:
+    register-with-eureka: true
+    fetch-registry: true
+    service-url:
+      defaultZone: http://localhost:6241/eureka
+
+logging:
+  level:
+    com.example.account: DEBUG
+    org.springframework.data.redis: DEBUG
