@@ -128,6 +128,7 @@ const DropdownContainer = styled.div.withConfig({
   border: 3px solid #ddd;
   border-radius: 0.5rem;
   background-color: yellow;
+  padding-right: 1.5rem;
 
   max-height: ${(props) => (props.isOpen ? '1000px' : '0')};
   overflow-y: auto;  
