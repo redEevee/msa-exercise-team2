@@ -25,8 +25,8 @@ public class JwtTokenProvider {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
     }
 
-    public String generateToken(String username) {
-        Claims claims = Jwts.claims().setSubject(username);
+    public String generateToken(String email) {
+        Claims claims = Jwts.claims().setSubject(email);
         Date now = new Date();
         Date exp = new Date(now.getTime() + expiration);
 
@@ -38,7 +38,7 @@ public class JwtTokenProvider {
                 .compact();
     }
 
-    public String getUsername(String token) {
+    public String getEmail(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token)
                 .getBody().getSubject();
     }

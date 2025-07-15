@@ -20,6 +20,11 @@ public class AccountController {
         return ResponseEntity.ok(accountService.signup(request));
     }
 
+    @GetMapping("/check-email")
+    public ResponseEntity<Boolean> checkEmail(@RequestParam String email) {
+        return ResponseEntity.ok(accountService.checkEmailDuplicate(email));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<AccountResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(accountService.login(request));

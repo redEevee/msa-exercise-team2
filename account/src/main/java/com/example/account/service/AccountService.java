@@ -19,19 +19,23 @@ public class AccountService {
     private final JwtTokenProvider jwtTokenProvider;
 
     public AccountResponse signup(SignupRequest request) {
-        if (userRepository.existsByUsername(request.getUsername())) {
+        if (userRepository.existsByEmail(request.getEmail())) {
             return new AccountResponse(false, "이미 존재하는 사용자입니다.", null);
         }
 
         String encoded = passwordEncoder.encode(request.getPassword());
-        userRepository.save(new User(null, request.getUsername(), encoded));
+        userRepository.save(new User(null, request.getEmail(), encoded));
         return new AccountResponse(true, "회원가입 성공", null);
     }
 
     public AccountResponse login(LoginRequest request) {
-        return userRepository.findByUsername(request.getUsername())
+        return userRepository.findByEmail(request.getEmail())
                 .filter(user -> passwordEncoder.matches(request.getPassword(), user.getPassword()))
-                .map(user -> new AccountResponse(true, "로그인 성공", jwtTokenProvider.generateToken(user.getUsername())))
+                .map(user -> new AccountResponse(true, "로그인 성공", jwtTokenProvider.generateToken(user.getEmail())))
                 .orElseGet(() -> new AccountResponse(false, "로그인 실패", null));
+    }
+
+    public boolean checkEmailDuplicate(String email) {
+        return !userRepository.existsByEmail(email);
     }
 }
