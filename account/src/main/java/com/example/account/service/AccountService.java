@@ -35,7 +35,7 @@ public class AccountService {
                 .orElseGet(() -> new AccountResponse(false, "로그인 실패", null));
     }
 
-    public boolean checkEmailDuplicate(String email) {
+    public boolean isEmailAvailable(String email) {
         return !userRepository.existsByEmail(email);
     }
 }
