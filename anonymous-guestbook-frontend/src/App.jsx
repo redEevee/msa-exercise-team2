@@ -1,45 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import GuestbookForm from './components/GuestbookForm';
-import GuestbookList from './components/GuestbookList';
 import { postGuestbook, getGuestbookList } from './api';
 import styled from 'styled-components';
+import GuestbookPage from './components/GuestbookPage';
 
 function App() {
-    const [list, setList] = useState([]);
-
     const [isOpen, setIsOpen] = useState(false);
 
-
-    // 글 목록 불러오기
-    const fetchList = async () => {
-        const res = await getGuestbookList();
-        setList(res.data);
-    };
-
-    useEffect(() => {
-        fetchList();
-    }, []);
-
-    // 글 작성 핸들러
-    const handleAdd = async (data) => {
-        await postGuestbook(data);
-        fetchList(); // 작성 후 목록 생신
-    }
-
-    const handleDelete = async (id) => {
-        setList((prevList) => prevList.filter((item) => item.id !== id));
-    };
-
-    const handleUpdate = async (id, updatedItem) => {
-        setList((prevList) =>
-            prevList.map((item) =>
-                item.id === id ? { ...item, ...updatedItem } : item
-            )
-        );
-    };
-
     return (
-       
+       <>
         <Container>
             <h1>🙅‍♀️익명 방명록🙅‍♂️</h1>
             <ToggleButton onClick={() => setIsOpen(!isOpen)}>
@@ -54,16 +22,12 @@ function App() {
                 </ImageWrapper>
             )}
        <DropdownContainer isOpen={isOpen}>
-        {isOpen && (
-            <>
-            <GuestbookForm onAdd={handleAdd} />
-            <GuestbookList list={list} />
-            </>
-        )}
-            
-            </DropdownContainer>
+  {isOpen && 
+    <GuestbookPage/>
+  }
+</DropdownContainer>
         </Container>
-       
+       </>
     );
 }
 
@@ -74,10 +38,8 @@ const Container = styled.div`
   align-items: center;
   flex-direction: column;
   width: 100%;
-  height: 100%;
   min-width: 300px;
   min-height: 500px;
-  max-height: 800px;
   max-width: 600px;
   margin: 2rem auto;
   padding: 0 1rem;
@@ -96,7 +58,9 @@ const ToggleButton = styled.button`
   font-weight: bold;
 `;
 
-const DropdownContainer = styled.div`
+const DropdownContainer = styled.div.withConfig({
+  shouldForwardProp: (prop) => prop !== 'isOpen'
+})`
   margin-top: 1rem;
   border: 3px solid #ddd;
   border-radius: 0.5rem;
@@ -105,8 +69,9 @@ const DropdownContainer = styled.div`
   max-height: ${(props) => (props.isOpen ? '1000px' : '0')};
   overflow-y: auto;  
   opacity: ${(props) => (props.isOpen ? 1 : 0)};
-  transition: max-height 0.4s ease, opacity 3s ease;
+  transition: max-height 0.4s ease, opacity 0.4s ease;
 `;
+
 
 const ImageWrapper = styled.div`
   width: 100%;
