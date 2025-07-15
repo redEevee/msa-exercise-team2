@@ -4,14 +4,16 @@ import styled from 'styled-components';
 function GuestbookForm({ onAdd }) {
     const [nickname, setNickname] = useState('');
     const [content, setContent] = useState('');
+    const [password, setPassword] = useState('');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        if (!nickname || !content) return alert("닉네임과 내용을 모두 입력하세요.");
+        if (!nickname || !content || !password) return alert("모두 입력해 주세요.");
 
-        await onAdd({ nickname, content });
+        await onAdd({ nickname, content, password });
         setNickname('');
         setContent('');
+        setPassword('');
     };
 
 
@@ -22,6 +24,12 @@ function GuestbookForm({ onAdd }) {
                 placeholder="닉네임"
                 value={nickname}
                 onChange={(e) => setNickname(e.target.value)}
+            />
+            <Input
+                type="password"
+                placeholder="비밀번호 (삭제/수정 시 필요)"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
             />
             <Textarea
                 placeholder="내용을 입력하세요"
