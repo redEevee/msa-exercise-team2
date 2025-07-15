@@ -51,6 +51,7 @@ const FormContainer = styled.form`
   background-color: #f9fafb;
   border-radius: 0.5rem;
   border-bottom: 1px solid #ccc;
+  min-width: 500px;
 `;
 
 const Input = styled.input`

@@ -1,8 +1,13 @@
 import React, { useEffect, useState } from "react";
 import GuestbookForm from "../components/GuestbookForm";
 import GuestbookList from "../components/GuestbookList";
-import styled from 'styled-components'
-import { getGuestbookList, postGuestbook, deleteGuestbook, updateGuestbook } from "../api";  // 수정됨
+import styled from "styled-components";
+import {
+  getGuestbookList,
+  postGuestbook,
+  deleteGuestbook,
+  updateGuestbook,
+} from "../api"; // 수정됨
 import { useNavigate } from "react-router-dom";
 
 function GuestbookPage() {
@@ -11,8 +16,8 @@ function GuestbookPage() {
   const navigate = useNavigate();
 
   const navigatelogin = () => {
-    navigate("/loginpage")
-  }
+    navigate("/loginpage");
+  };
 
   // 방명록 목록 불러오기
   useEffect(() => {
@@ -46,9 +51,10 @@ function GuestbookPage() {
 
     try {
       await deleteGuestbook(id, password);
-      setList(prev => prev.filter(item => item.id !== id));
+      setList((prev) => prev.filter((item) => item.id !== id));
     } catch (error) {
-      const msg = error.response?.data || "삭제 실패: 알 수 없는 오류가 발생했습니다.";
+      const msg =
+        error.response?.data || "삭제 실패: 알 수 없는 오류가 발생했습니다.";
       alert(msg);
     }
   };
@@ -57,11 +63,14 @@ function GuestbookPage() {
   const handleUpdate = async (id, updatedItem) => {
     try {
       await updateGuestbook(id, updatedItem);
-      setList(prev =>
-        prev.map(item => (item.id === id ? { ...item, ...updatedItem } : item))
+      setList((prev) =>
+        prev.map((item) =>
+          item.id === id ? { ...item, ...updatedItem } : item
+        )
       );
     } catch (error) {
-      const msg = error.response?.data || "수정 실패: 알 수 없는 오류가 발생했습니다.";
+      const msg =
+        error.response?.data || "수정 실패: 알 수 없는 오류가 발생했습니다.";
       alert(msg);
     }
   };
@@ -70,39 +79,36 @@ function GuestbookPage() {
     <>
       <Container>
         <ButtonWrap>
-          <LoginButton onClick={navigatelogin}>
-            로그인
-          </LoginButton>
+          <LoginButton onClick={navigatelogin}>로그인</LoginButton>
         </ButtonWrap>
 
         <h1>익명 방명록</h1>
         <ToggleButton onClick={() => setIsOpen(!isOpen)}>
-          {isOpen ? '게시판 닫기' : '게시판 열기'}
+          {isOpen ? "게시판 닫기" : "게시판 열기"}
         </ToggleButton>
         {!isOpen && (
           <ImageWrapper>
-            <RandomImage
-              src="https://picsum.photos/400/300"
-              alt="random"
-            />
+            <RandomImage src="https://picsum.photos/400/300" alt="random" />
           </ImageWrapper>
         )}
         <DropdownContainer isOpen={isOpen}>
           {isOpen && (
             <>
-              {/* 글 작성 폼 */}
-              <GuestbookForm onAdd={handleAdd} />
-
-              {/* 방명록 리스트 */}
-              <GuestbookList
-                list={list}
-                onDelete={handleDelete}
-                onUpdate={handleUpdate}
-              />
+              <FormContainer>
+                {/* 글 작성 폼 */}
+                <GuestbookForm onAdd={handleAdd} />
+              </FormContainer>
+              <ListContainer>
+                {/* 방명록 리스트 */}
+                <GuestbookList
+                  list={list}
+                  onDelete={handleDelete}
+                  onUpdate={handleUpdate}
+                />
+              </ListContainer>
             </>
           )}
         </DropdownContainer>
-
       </Container>
     </>
   );
@@ -116,7 +122,7 @@ const ButtonWrap = styled.div`
   height: 100px;
   justify-content: end;
   align-items: center;
-`
+`;
 const LoginButton = styled.div`
   display: flex;
   justify-content: end;
@@ -130,7 +136,7 @@ const LoginButton = styled.div`
   border-radius: 0.5rem;
   cursor: pointer;
   font-weight: bold;
-`
+`;
 
 const Container = styled.div`
   display: flex;
@@ -141,9 +147,9 @@ const Container = styled.div`
   min-height: 500px;
   max-width: 600px;
   margin: 2rem auto;
-  padding: 0 1rem;
+  padding: 0 1rem 1rem;
   border: 1px solid;
-  box-shadow: 0 14px 18px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 22px 25px rgba(0, 0, 0, 0.4);
 `;
 
 const ToggleButton = styled.button`
@@ -157,31 +163,65 @@ const ToggleButton = styled.button`
 `;
 
 const DropdownContainer = styled.div.withConfig({
-  shouldForwardProp: (prop) => prop !== 'isOpen'
+  shouldForwardProp: (prop) => prop !== "isOpen",
 })`
-  margin-top: 1rem;
-  border: 3px solid #ddd;
-  border-radius: 0.5rem;
-  background-color: yellow;
-  padding-right: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 
-  max-height: ${(props) => (props.isOpen ? '1000px' : '0')};
-  overflow-y: auto;  
+  margin-top: 1rem;
+  padding: 1.5rem;
+  width: 550px;
+
+  background: radial-gradient(
+    circle at center,
+    #ffffff 0%,
+    #f0f0f0 70%,
+    #dddddd 100%
+  );
+
+  border-radius: 1rem;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+  max-height: ${(props) => (props.isOpen ? "1000px" : "0")};
+  overflow-y: auto;
+  overflow-x: hidden;
   opacity: ${(props) => (props.isOpen ? 1 : 0)};
-  transition: max-height 0.4s ease, opacity 0.4s ease;
+  transition: max-height 0.6s ease, opacity 0.6s ease;
+  padding-right: 1.5rem;
+  box-sizing: content-box;
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: #ccc;
+    border-radius: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
 `;
 
-
 const ImageWrapper = styled.div`
+  position: relative;
   width: 100%;
-  max-width: 600px;
+  max-width: 550px; 
   margin-top: 1rem;
-  padding: 0 1rem; 
-  border-radius: 0.5rem;
+  padding: 1rem;
+  border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   opacity: 0;
-  animation: fadeIn 0.6s ease forwards;
+  animation: fadeIn 0.7s ease forwards;
+
+  background: radial-gradient(
+    circle at center,
+    #f5f5f5 0%,
+    #f0f0f0 40%,
+    #ffffff 100%
+  );
 
   @keyframes fadeIn {
     to {
@@ -189,6 +229,16 @@ const ImageWrapper = styled.div`
     }
   }
 `;
+
+const FormContainer =styled.div`
+  
+`
+
+const ListContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  width: 550px;
+`
 
 const RandomImage = styled.img`
   width: 100%;
