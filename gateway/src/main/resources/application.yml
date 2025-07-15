@@ -39,7 +39,7 @@ logging:
     org.springframework.cloud.gateway: DEBUG
 
 server:
-  port: xxxx
+  port: 4873
 
 eureka:
   client:
