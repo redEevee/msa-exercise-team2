@@ -33,17 +33,17 @@ function GuestbookPage() {
   };
 
   // 글 삭제
-  const handleDelete = async (id) => {
+  const handleDelete = async (id, password) => {
     console.log("삭제 시작", id);
     const confirm = window.confirm("정말 삭제하시겠습니까?");
     if (!confirm) return;
 
     try {
-      await deleteGuestbook(id);
-      console.log("삭제 요청 완료")
+      await deleteGuestbook(id, password);
       setList(prev => prev.filter(item => item.id !== id));
     } catch (error) {
-      console.error("삭제 실패:", error);
+      const msg = error.response?.data || "삭제 실패: 알 수 없는 오류가 발생했습니다.";
+      alert(msg);
     }
   };
 
@@ -52,10 +52,11 @@ function GuestbookPage() {
     try {
       await updateGuestbook(id, updatedItem);
       setList(prev =>
-        prev.map(item => item.id === id ? { ...item, ...updatedItem } : item)
+          prev.map(item => (item.id === id ? { ...item, ...updatedItem } : item))
       );
     } catch (error) {
-      console.error("수정 실패:", error);
+      const msg = error.response?.data || "수정 실패: 알 수 없는 오류가 발생했습니다.";
+      alert(msg);
     }
   };
 

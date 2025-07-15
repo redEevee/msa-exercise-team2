@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 
 function GuestbookList({ list, onDelete, onUpdate }) {
     const [editingId, setEditingId] = useState(null);
@@ -7,10 +6,6 @@ function GuestbookList({ list, onDelete, onUpdate }) {
     const [editNickname, setEditNickname] = useState('');
     const [editingPassword, setEditingPassword] = useState('');
 
-    console.log('📦 list:', list);
-    console.log('📦 typeof list:', typeof list);
-
-    // 수정 시작
     const startEdit = (item, password) => {
         setEditingId(item.id);
         setEditContent(item.content);
@@ -18,7 +13,6 @@ function GuestbookList({ list, onDelete, onUpdate }) {
         setEditingPassword(password);
     };
 
-    // 수정 취소
     const cancelEdit = () => {
         setEditingId(null);
         setEditContent('');
@@ -26,7 +20,6 @@ function GuestbookList({ list, onDelete, onUpdate }) {
         setEditingPassword('');
     };
 
-    // 수정 저장
     const handleUpdateSubmit = async (id) => {
         await onUpdate(id, {
             nickname: editNickname,
@@ -34,14 +27,6 @@ function GuestbookList({ list, onDelete, onUpdate }) {
             password: editingPassword,
         });
         cancelEdit();
-    };
-
-    // 삭제 처리
-    const handleDelete = async (id) => {
-        const password = prompt("비밀번호를 입력하세요");
-        if (!password) return;
-
-        await onDelete(id, password); // 부모 컴포넌트에서 삭제 처리
     };
 
     return (
@@ -72,8 +57,11 @@ function GuestbookList({ list, onDelete, onUpdate }) {
                                     startEdit(item, password);
                                 }
                             }}>수정</button>
-
-                            <button onClick={() => handleDelete(item.id)}>삭제</button>
+                            <button onClick={async () => {
+                                const password = prompt("비밀번호를 입력하세요");
+                                if (!password) return;
+                                await onDelete(item.id, password);
+                            }}>삭제</button>
                         </>
                     )}
                 </li>

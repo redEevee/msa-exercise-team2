@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Slf4j
@@ -21,7 +22,7 @@ public class GuestbookController {
     private final GuestbookRepository guestbookRepository;
 
     // 글 작성
-    @PostMapping("/create")
+    @PostMapping
     public Guestbook create(@RequestBody Guestbook guestbook) {
         return guestbookRepository.save(guestbook);
     }
@@ -60,12 +61,13 @@ public class GuestbookController {
     @DeleteMapping("{id}")
     //다들 화이팅하십시오 나는 프론트나 깔짝하다가 끝내야겠다
     //내 정신건강을 위해서 포기를 아는 남자
-    public ResponseEntity<String> deleteGuestbook(@PathVariable Long id, @RequestBody Guestbook request) {
+    public ResponseEntity<String> deleteGuestbook(@PathVariable Long id, @RequestBody Map<String, String> request) {
         Optional<Guestbook> optional = guestbookRepository.findById(id);
         if (optional.isPresent()) {
             Guestbook guestbook = optional.get();
+            String password = request.get("password");
 
-            if (!guestbook.getPassword().equals(request.getPassword())) {
+            if (!guestbook.getPassword().equals(password)) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
             }
 
