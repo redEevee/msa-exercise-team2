@@ -3,10 +3,16 @@ import GuestbookForm from "../components/GuestbookForm";
 import GuestbookList from "../components/GuestbookList";
 import styled from 'styled-components'
 import { getGuestbookList, postGuestbook, deleteGuestbook, updateGuestbook } from "../api";  // 수정됨
+import { useNavigate } from "react-router-dom";
 
 function GuestbookPage() {
   const [list, setList] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+
+  const navigatelogin = () => {
+    navigate("/loginpage")
+  }
 
   // 방명록 목록 불러오기
   useEffect(() => {
@@ -52,7 +58,7 @@ function GuestbookPage() {
     try {
       await updateGuestbook(id, updatedItem);
       setList(prev =>
-          prev.map(item => (item.id === id ? { ...item, ...updatedItem } : item))
+        prev.map(item => (item.id === id ? { ...item, ...updatedItem } : item))
       );
     } catch (error) {
       const msg = error.response?.data || "수정 실패: 알 수 없는 오류가 발생했습니다.";
@@ -63,6 +69,12 @@ function GuestbookPage() {
   return (
     <>
       <Container>
+        <ButtonWrap>
+          <LoginButton onClick={navigatelogin}>
+            로그인
+          </LoginButton>
+        </ButtonWrap>
+
         <h1>익명 방명록</h1>
         <ToggleButton onClick={() => setIsOpen(!isOpen)}>
           {isOpen ? '게시판 닫기' : '게시판 열기'}
@@ -97,6 +109,28 @@ function GuestbookPage() {
 }
 
 export default GuestbookPage;
+
+const ButtonWrap = styled.div`
+  display: flex;
+  width: 100%;
+  height: 100px;
+  justify-content: end;
+  align-items: center;
+`
+const LoginButton = styled.div`
+  display: flex;
+  justify-content: end;
+  align-items: center;
+  background-color: #007bff;
+  width: 50px;
+  height: 30px;
+  color: white;
+  padding: 0.75rem 1.25rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-weight: bold;
+`
 
 const Container = styled.div`
   display: flex;
@@ -142,7 +176,7 @@ const ImageWrapper = styled.div`
   width: 100%;
   max-width: 600px;
   margin-top: 1rem;
-  padding: 0 1rem; /* ✅ 좌우 여백 추가 */
+  padding: 0 1rem; 
   border-radius: 0.5rem;
   overflow: hidden;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
