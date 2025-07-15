@@ -43,29 +43,34 @@ public class GuestbookController {
 
         if (optionalGuestbook.isPresent()) {
             Guestbook existing = optionalGuestbook.get();
+
+            if (!existing.getPassword().equals(updateGuestbook.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+            }
+
             existing.setContent(updateGuestbook.getContent());
             existing.setNickname(updateGuestbook.getNickname());
             guestbookRepository.save(existing);
-
             return ResponseEntity.ok("수정 성공");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
     }
 
     // 글 삭제
     @DeleteMapping("{id}")
-    public ResponseEntity<String> deleteGuestbook(@PathVariable Long id) {
-        log.info("DELETE 요청 도착: {}", id);
+    public ResponseEntity<String> deleteGuestbook(@PathVariable Long id, @RequestBody Guestbook request) {
+        Optional<Guestbook> optional = guestbookRepository.findById(id);
 
-        Optional<Guestbook> guestbook = guestbookRepository.findById(id);
+        if (optional.isPresent()) {
+            Guestbook guestbook = optional.get();
 
-        if (guestbook.isPresent()) {
+            if (!guestbook.getPassword().equals(request.getPassword())) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+            }
+
             guestbookRepository.deleteById(id);
-            log.info("DELETE: {}", id);
             return ResponseEntity.ok("삭제 성공");
-        } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 ID의 방명록이 없습니다.");
         }
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body("해당 ID의 방명록이 없습니다.");
     }
 }
