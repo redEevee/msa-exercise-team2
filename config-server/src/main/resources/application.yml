@@ -9,5 +9,5 @@ spring:
     config:
       server:
         git:
-          uri: ??? ???? ?? ???? ? ??? ????/config-repo
+          uri: file:///D:/proj/msa-exercise-team2/config-repo
           default-label: main
