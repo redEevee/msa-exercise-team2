@@ -50,4 +50,4 @@ eureka:
 logging:
   level:
     com.example.guestbook: DEBUG
-    feign: DEBUG
+    org.springframework.data.redis: DEBUG
