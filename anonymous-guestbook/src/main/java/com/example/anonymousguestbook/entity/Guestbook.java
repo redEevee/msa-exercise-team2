@@ -21,13 +21,16 @@ public class Guestbook {
 
     private String nickname;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
 
     @Column(columnDefinition = "TEXT")
     private String content;
 
     private LocalDateTime createdAt;
+
+    @Column(nullable = true)
+    private Long userId;
 
     // 저장 전 현재 시간 자동으로 설정
     @PrePersist

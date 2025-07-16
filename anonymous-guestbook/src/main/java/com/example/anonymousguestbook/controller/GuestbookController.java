@@ -24,6 +24,10 @@ public class GuestbookController {
     // 글 작성
     @PostMapping
     public Guestbook create(@RequestBody Guestbook guestbook) {
+
+        if (guestbook.getUserId() != null) {
+            guestbook.setPassword("");
+        }
         return guestbookRepository.save(guestbook);
     }
 
@@ -45,8 +49,16 @@ public class GuestbookController {
         if (optionalGuestbook.isPresent()) {
             Guestbook existing = optionalGuestbook.get();
 
-            if (!existing.getPassword().equals(updateGuestbook.getPassword())) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+            if (updateGuestbook.getUserId() != null) {
+                // 회원이면 User 프라이머리 값 비교입니두
+                if (!updateGuestbook.getUserId().equals(existing.getUserId())) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("권한이 없습니다");
+                }
+            } else {
+                // 비회원이면 태준이형이 비밀번호 체크 후 줘팹니다.
+                if (existing.getPassword() == null || updateGuestbook.getPassword() == null || !existing.getPassword().equals(updateGuestbook.getPassword())) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+                }
             }
 
             existing.setContent(updateGuestbook.getContent());
@@ -59,16 +71,24 @@ public class GuestbookController {
 
     // 글 삭제
     @DeleteMapping("{id}")
-    //다들 화이팅하십시오 나는 프론트나 깔짝하다가 끝내야겠다
-    //내 정신건강을 위해서 포기를 아는 남자
+    // 결국 정신 건강을 포기하지 못하고 죽어가는 오리
     public ResponseEntity<String> deleteGuestbook(@PathVariable Long id, @RequestBody Map<String, String> request) {
         Optional<Guestbook> optional = guestbookRepository.findById(id);
         if (optional.isPresent()) {
             Guestbook guestbook = optional.get();
-            String password = request.get("password");
 
-            if (!guestbook.getPassword().equals(password)) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
+            Object userIdObj = request.get("userId");
+            if (userIdObj != null) {
+                Long userId = Long.valueOf(userIdObj.toString());
+                if (!userId.equals(guestbook.getUserId())) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("권한이 없습니다");
+                }
+            } else {
+                // 비회원은 오리가 무자비하게 비밀번호 체크를 위해 오리가 무자비하게 물어 뜯습니다
+                String password = (String) request.get("password");
+                if (guestbook.getPassword() == null || !guestbook.getPassword().equals(password)) {
+                    return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다");
+                }
             }
 
             guestbookRepository.deleteById(id);
