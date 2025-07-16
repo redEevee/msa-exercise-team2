@@ -9,11 +9,17 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/")
+@RequestMapping("/account")
 @RequiredArgsConstructor
 public class AccountController {
 
     private final AccountService accountService;
+
+
+    @GetMapping("/test")
+    public String test() {
+        return "Hello World";
+    }
 
     @PostMapping("/signup")
     public ResponseEntity<AccountResponse> signup(@RequestBody SignupRequest request) {

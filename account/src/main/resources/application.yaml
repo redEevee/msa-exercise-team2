@@ -22,9 +22,7 @@ spring:
       port: 6379
       password: eddi@123
 
-jwt:
-  secret: my-secret-key
-  expiration: 3600000  # 1시간
+
 
 server:
   port: 11335

@@ -4,9 +4,29 @@ server:
 spring:
   application:
     name: gateway
+  main:
+    web-application-type: reactive
 
   cloud:
     gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials
+
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins:
+              - "http://localhost:3000"
+            allowedMethods:
+              - GET
+              - POST
+              - PUT
+              - DELETE
+              - OPTIONS
+            allowedHeaders:
+              - "*"
+            allowCredentials: true
+
       routes:
         - id: anonymous-guestbook-service
           uri: lb://ANONYMOUS-GUESTBOOK
@@ -16,12 +36,12 @@ spring:
             - StripPrefix=2
             - SetRequestHeader=Accept, application/json
 
-        - id: account-service
-          uri: lb://ACCOUNT
+        - id: account
+          uri: lb://account
           predicates:
             - Path=/api/account/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=1
             - SetRequestHeader=Accept, application/json
 
       discovery:
@@ -39,4 +59,3 @@ eureka:
 logging:
   level:
     org.springframework.cloud.gateway: DEBUG
-
