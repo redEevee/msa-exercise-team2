@@ -7,18 +7,22 @@ function GuestbookForm({ onAdd }) {
   const [password, setPassword] = useState('');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userEmail, setUserEmail] = useState('');
+  const [userId, setUserId] = useState(''); // userId 상태 추가
+
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    const email = localStorage.getItem('userEmail');
-    if (token && email) {
+    const storedUserId = localStorage.getItem('userId');
+    const storedUserEmail = localStorage.getItem('userEmail');
+    if (storedUserId && storedUserEmail) {
       setIsLoggedIn(true);
-      setUserEmail(email);
+      setUserId(storedUserId);
+      setUserEmail(storedUserEmail);
     } else {
       setIsLoggedIn(false);
+      setUserId('');
       setUserEmail('');
     }
-  }, []);
+  }, []); // 빈 배열로 한 번만 실행
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -26,19 +30,23 @@ function GuestbookForm({ onAdd }) {
     let newEntry;
     if (isLoggedIn) {
       if (!content) return alert("내용을 입력해 주세요.");
-      newEntry = { content, email: userEmail }; 
+      // 백엔드의 Guestbook 엔티티에 'email' 필드가 없으므로,
+      // userEmail을 nickname으로 보내고 userId도 함께 보냅니다.
+      newEntry = { content, nickname: userEmail, userId: parseInt(userId) };
     } else {
       if (!nickname || !content || !password) return alert("모두 입력해 주세요.");
-      newEntry = { nickname, content, password }; 
+      newEntry = { nickname, content, password };
     }
 
     await onAdd(newEntry);
 
+    // 작성 후 폼 초기화
     setContent('');
     if (!isLoggedIn) {
       setNickname('');
       setPassword('');
     }
+    // 로그인 상태에서는 닉네임과 비밀번호 필드가 없으므로 초기화할 필요 없음
   };
 
   return (

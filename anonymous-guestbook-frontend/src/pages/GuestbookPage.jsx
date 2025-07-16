@@ -21,20 +21,21 @@ function GuestbookPage() {
   };
 
   const handleLogoutClick = () => {
-    localStorage.removeItem('accessToken');
+    // accessToken 대신 userId와 userEmail을 기반으로 로그인 상태를 관리하므로 이것들을 제거
     localStorage.removeItem('userId');
     localStorage.removeItem('userEmail');
-    setIsLoggedIn(false); 
+    setIsLoggedIn(false);
     alert("로그아웃 되었습니다.");
-    navigate("/"); 
+    navigate("/");
   };
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    setIsLoggedIn(!!token); 
-    fetchGuestbooks(); 
-  }, [isLoggedIn]);
-
+    // userId 또는 userEmail이 localStorage에 있으면 로그인 상태로 간주
+    const userId = localStorage.getItem('userId');
+    const userEmail = localStorage.getItem('userEmail');
+    setIsLoggedIn(!!userId && !!userEmail);
+    fetchGuestbooks();
+  }, [isLoggedIn]); // isLoggedIn 상태가 변경될 때마다 fetchGuestbooks 호출
 
   // 방명록 목록 불러오기
   const fetchGuestbooks = async () => {
@@ -47,33 +48,29 @@ function GuestbookPage() {
   };
 
   // 글 작성 처리
+  // data는 { nickname, content, password } 또는 { nickname, content, userId } 형태
   const handleAdd = async (data) => {
     try {
       await postGuestbook(data);
-      await fetchGuestbooks();
+      await fetchGuestbooks(); // 성공 후 목록 갱신
     } catch (err) {
       console.error("글 추가 실패", err);
+      alert("글 추가에 실패했습니다.");
     }
   };
 
   // 글 삭제
-  const handleDelete = async (id, password) => {
+  // payload는 { password } 또는 { userId } 형태
+  const handleDelete = async (id, payload) => {
     console.log("삭제 시작", id);
     const confirm = window.confirm("정말 삭제하시겠습니까?");
     if (!confirm) return;
 
-    const userId = localStorage.getItem('userId');
-    let payload;
-
-    if (userId) { 
-      payload = { userId }; 
-    } else { 
-      payload = { password }; 
-    }
-
     try {
-      await deleteGuestbook(id, password);
+      // payload를 deleteGuestbook 함수에 직접 전달
+      await deleteGuestbook(id, payload);
       setList((prev) => prev.filter((item) => item.id !== id));
+      alert("삭제 성공");
     } catch (error) {
       const msg =
         error.response?.data || "삭제 실패: 알 수 없는 오류가 발생했습니다.";
@@ -82,21 +79,17 @@ function GuestbookPage() {
   };
 
   // 글 수정
+  // updatedItem은 { content, nickname?, password?, userId? } 형태
   const handleUpdate = async (id, updatedItem) => {
-    const userId = localStorage.getItem('userId'); 
-    let payload = { ...updatedItem };
-
-    if (userId) { 
-      payload = { ...payload, userId }; 
-    }
-    
     try {
+      // updatedItem에 userId가 포함되어 있거나, 비회원 정보가 제대로 포함되어 있음
       await updateGuestbook(id, updatedItem);
       setList((prev) =>
         prev.map((item) =>
           item.id === id ? { ...item, ...updatedItem } : item
         )
       );
+      alert("수정 성공");
     } catch (error) {
       const msg =
         error.response?.data || "수정 실패: 알 수 없는 오류가 발생했습니다.";
@@ -129,7 +122,7 @@ function GuestbookPage() {
             <>
               <FormContainer>
                 {/* 글 작성 폼 */}
-                <GuestbookForm onAdd={handleAdd} />
+                <GuestbookForm onAdd={handleAdd} isLoggedIn={isLoggedIn} />
               </FormContainer>
               <ListContainer>
                 {/* 방명록 리스트 */}
@@ -137,6 +130,7 @@ function GuestbookPage() {
                   list={list}
                   onDelete={handleDelete}
                   onUpdate={handleUpdate}
+                  isLoggedIn={isLoggedIn}
                 />
               </ListContainer>
             </>

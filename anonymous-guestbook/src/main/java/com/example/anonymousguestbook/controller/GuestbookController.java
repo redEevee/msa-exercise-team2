@@ -54,15 +54,18 @@ public class GuestbookController {
                 if (!updateGuestbook.getUserId().equals(existing.getUserId())) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("권한이 없습니다");
                 }
+                existing.setContent(updateGuestbook.getContent());
+
             } else {
                 // 비회원이면 태준이형이 비밀번호 체크 후 줘팹니다.
                 if (existing.getPassword() == null || updateGuestbook.getPassword() == null || !existing.getPassword().equals(updateGuestbook.getPassword())) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다.");
                 }
+                existing.setContent(updateGuestbook.getContent());
+                existing.setNickname(updateGuestbook.getNickname());
             }
 
-            existing.setContent(updateGuestbook.getContent());
-            existing.setNickname(updateGuestbook.getNickname());
+
             guestbookRepository.save(existing);
             return ResponseEntity.ok("수정 성공");
         }
@@ -77,19 +80,19 @@ public class GuestbookController {
         if (optional.isPresent()) {
             Guestbook guestbook = optional.get();
 
-            Object userIdObj = request.get("userId");
-            if (userIdObj != null) {
-                Long userId = Long.valueOf(userIdObj.toString());
+            String userIdStr = request.get("userId"); // userId를 String으로 받음
+            if (userIdStr != null && !userIdStr.isEmpty()) { // userId가 있다면 회원
+                Long userId = Long.valueOf(userIdStr);
                 if (!userId.equals(guestbook.getUserId())) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("권한이 없습니다");
                 }
-            } else {
-                // 비회원은 오리가 무자비하게 비밀번호 체크를 위해 오리가 무자비하게 물어 뜯습니다
-                String password = (String) request.get("password");
+            } else { // userId가 없다면 비회원 (비밀번호 확인)
+                String password = request.get("password");
                 if (guestbook.getPassword() == null || !guestbook.getPassword().equals(password)) {
                     return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("비밀번호가 일치하지 않습니다");
                 }
             }
+
 
             guestbookRepository.deleteById(id);
             return ResponseEntity.ok("삭제 성공");
