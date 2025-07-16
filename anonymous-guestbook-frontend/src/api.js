@@ -17,7 +17,7 @@ export const getGuestbookList = () => api.get('/api/guestbook');  // 빈 문자�
 export const postGuestbook = (data) => api.post('/api/guestbook', data);
 
 // 글 삭제
-export const deleteGuestbook = (id, password) => api.delete(`/api/guestbook${id}`, {
+export const deleteGuestbook = (id, password) => api.delete(`/api/guestbook/${id}`, {
     data: { password },
 });
 
@@ -34,6 +34,6 @@ export const signup = (data) => api.post('/api/account/signup', data);
 export const login = (data) => api.post('/api/account/login', data);
 
 // 이메일 중복 체크
-export const checkEmailDuplicate = (email) => api.get('/api/account/check-email',{params:{email}});
+export const checkEmailDuplicate = (email) => api.get('/api/account/check-email', { params: { email } });
 
 export default api;
