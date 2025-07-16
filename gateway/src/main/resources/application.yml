@@ -28,12 +28,12 @@ spring:
             allowCredentials: true
 
       routes:
-        - id: anonymous-guestbook-service
-          uri: lb://ANONYMOUS-GUESTBOOK
+        - id: anonymous-guestbook
+          uri: lb://anonymous-guestbook
           predicates:
             - Path=/api/guestbook/**
           filters:
-            - StripPrefix=2
+            - StripPrefix=1
             - SetRequestHeader=Accept, application/json
 
         - id: account
