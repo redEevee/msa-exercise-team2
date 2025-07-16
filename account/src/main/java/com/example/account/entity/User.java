@@ -5,6 +5,7 @@ import lombok.*;
 
 @Entity
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class User {
@@ -17,4 +18,6 @@ public class User {
     private String username;
 
     private String password;
+
+
 }
