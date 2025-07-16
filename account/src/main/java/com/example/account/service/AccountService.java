@@ -3,11 +3,10 @@ package com.example.account.service;
 import com.example.account.dto.request.LoginRequest;
 import com.example.account.dto.request.SignupRequest;
 import com.example.account.dto.response.AccountResponse;
+import com.example.account.dto.response.LoginResult;
 import com.example.account.entity.User;
 import com.example.account.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.expression.ExpressionException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
@@ -17,32 +16,35 @@ import java.util.UUID;
 public class AccountService {
 
     private final UserRepository userRepository;
-//    private final PasswordEncoder passwordEncoder;
 
     public AccountResponse signup(SignupRequest request) {
         if (userRepository.existsByUsername(request.getUsername())) {
-            return new AccountResponse(false, "이미 존재하는 사용자입니다.", null);
+            return new AccountResponse(false, "이미 존재하는 이메일입니다.", null);
         }
 
-//        String encoded = passwordEncoder.encode(request.getPassword());
-        userRepository.save(new User(null, request.getUsername(), request.getPassword()));
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(request.getPassword());  // 평문 저장
+        userRepository.save(user);
+
         return new AccountResponse(true, "회원가입 성공", null);
     }
 
     public AccountResponse login(LoginRequest request) {
-
         User user = userRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new ExpressionException("로그인 오류"));
-        
-        
+                .orElseThrow(() -> new RuntimeException("아이디 또는 비밀번호가 틀렸습니다."));
 
-        if (user.getPassword().equals(request.getPassword())) {
-
-            String token = UUID.randomUUID().toString();
-            return new AccountResponse(true, "성공", token);
-        } else {    
-            return new AccountResponse(false, "실패", null);
+        if (!request.getPassword().equals(user.getPassword())) {
+            return new AccountResponse(false, "비밀번호가 틀렸습니다.", null);
         }
-        
+
+        String uuid = UUID.randomUUID().toString();
+        LoginResult result = new LoginResult(uuid, user.getId());
+
+        return new AccountResponse(true, "로그인 성공", result);
+    }
+
+    public boolean checkEmailExists(String username) {
+        return userRepository.existsByUsername(username);
     }
 }

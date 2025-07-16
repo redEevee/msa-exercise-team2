@@ -15,12 +15,6 @@ public class AccountController {
 
     private final AccountService accountService;
 
-
-    @GetMapping("/test")
-    public String test() {
-        return "Hello World";
-    }
-
     @PostMapping("/signup")
     public ResponseEntity<AccountResponse> signup(@RequestBody SignupRequest request) {
         return ResponseEntity.ok(accountService.signup(request));
@@ -29,5 +23,15 @@ public class AccountController {
     @PostMapping("/login")
     public ResponseEntity<AccountResponse> login(@RequestBody LoginRequest request) {
         return ResponseEntity.ok(accountService.login(request));
+    }
+
+    @PostMapping("/checkemail")
+    public ResponseEntity<AccountResponse> checkEmail(@RequestBody SignupRequest request) {
+        boolean exists = accountService.checkEmailExists(request.getUsername());
+        if (exists) {
+            return ResponseEntity.ok(new AccountResponse(false, "이미 존재하는 이메일입니다.", null));
+        } else {
+            return ResponseEntity.ok(new AccountResponse(true, "사용 가능한 이메일입니다.", null));
+        }
     }
 }
