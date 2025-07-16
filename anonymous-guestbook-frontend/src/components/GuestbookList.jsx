@@ -4,24 +4,41 @@ import styled, { keyframes } from 'styled-components';
 function GuestbookList({ list, onDelete, onUpdate }) {
   const [editingId, setEditingId] = useState(null);
   const [editContent, setEditContent] = useState('');
-  const [editNickname, setEditNickname] = useState('');
-  const [editingPassword, setEditingPassword] = useState('');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [editNickname, setEditNickname] = useState(''); // 비회원 닉네임 수정용
+  const [editingPassword, setEditingPassword] = useState(''); // 비회원 비밀번호 수정용
+  const [isLoggedIn, setIsLoggedIn] = useState(false); // GuestbookPage에서 props로 받도록 변경
+  const [currentUserId, setCurrentUserId] = useState(null); // 현재 로그인한 userId
 
   useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    setIsLoggedIn(!!token); 
-  }, []);
+    const userId = localStorage.getItem('userId');
+    const userEmail = localStorage.getItem('userEmail');
+    if (userId && userEmail) {
+      setIsLoggedIn(true);
+      setCurrentUserId(parseInt(userId)); // userId를 숫자로 저장
+    } else {
+      setIsLoggedIn(false);
+      setCurrentUserId(null);
+    }
+  }, []); // 빈 배열로 한 번만 실행
 
-  const startEdit = (item, password) => {
+  // item.userId가 현재 로그인한 userId와 일치하는지 확인하는 헬퍼 함수
+  const isAuthor = (itemUserId) => {
+    return isLoggedIn && itemUserId === currentUserId;
+  };
+
+  const startEdit = (item) => {
     setEditingId(item.id);
     setEditContent(item.content);
-    if (!isLoggedIn) {
-      setEditNickname(item.nickname);
-      setEditingPassword(''); 
+    // 로그인한 사용자의 글이면 닉네임은 변경 불가 (표시용)
+    // 비회원의 글이면 닉네임 수정 가능하도록 현재 닉네임 로드
+    if (isLoggedIn) {
+      // 로그인한 사용자의 글을 수정하는 경우, 닉네임은 userEmail을 따르므로 편집 필드를 숨기거나 readOnly 처리
+      // 이 부분은 UI에 따라 다름. 여기서는 nickname 필드를 빈 값으로 두어 표시하지 않거나 readOnly 처리 가능.
+      setEditNickname(item.nickname); // DB에 저장된 nickname(userEmail)을 불러옴
     } else {
-      setEditNickname(item.email);
-    }    
+      setEditNickname(item.nickname);
+      setEditingPassword(''); // 비밀번호 입력 필드 초기화
+    }
   };
 
   const cancelEdit = () => {
@@ -32,14 +49,15 @@ function GuestbookList({ list, onDelete, onUpdate }) {
   };
 
   const handleUpdateSubmit = async (id) => {
-    const userId = localStorage.getItem('userId'); 
     let updatedData = { content: editContent };
 
-    if (isLoggedIn) { 
-      updatedData.userId = userId;
-    } else { 
-      if (!editingPassword) {
-        alert("비밀번호를 입력해야 합니다.");
+    if (isLoggedIn) {
+      // 로그인된 사용자: userId만 함께 보냄
+      updatedData.userId = currentUserId;
+    } else {
+      // 비로그인 사용자: 닉네임과 비밀번호 확인
+      if (!editNickname || !editingPassword) {
+        alert("닉네임과 비밀번호를 모두 입력해야 합니다.");
         return;
       }
       updatedData.nickname = editNickname;
@@ -50,18 +68,19 @@ function GuestbookList({ list, onDelete, onUpdate }) {
     cancelEdit();
   };
 
-  const handleDeleteClick = async (id) => {
+  const handleDeleteClick = async (id, itemUserId) => {
     const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
     if (!confirmDelete) return;
 
-    const userId = localStorage.getItem('userId'); 
     let payload;
 
-    if (isLoggedIn) { 
-      payload = { userId }; 
-    } else { 
+    if (isLoggedIn) {
+      // 로그인된 사용자: userId만 payload에 담아서 보냄
+      payload = { userId: currentUserId.toString() }; // 백엔드 Map<String, String>에 맞춰 String으로 변환
+    } else {
+      // 비로그인 사용자: 비밀번호를 prompt로 입력받아 payload에 담음
       const password = prompt("비밀번호를 입력하세요.");
-      if (!password) return; 
+      if (!password) return; // 비밀번호 입력 취소 시 삭제 중단
       payload = { password };
     }
 
@@ -75,42 +94,69 @@ function GuestbookList({ list, onDelete, onUpdate }) {
           {editingId === item.id ? (
             <>
               {isLoggedIn ? (
-                <Input type="text" value={item.email} readOnly disabled /> // 로그인 시 이메일은 읽기 전용
+                // 로그인 상태일 때는 작성자가 현재 로그인한 사용자일 경우에만 수정 가능
+                isAuthor(item.userId) ? (
+                  <>
+                    <Input type="text" value={item.nickname || item.email} readOnly disabled /> {/* DB에 저장된 닉네임 (즉, email) 표시 */}
+                    <Textarea
+                      value={editContent}
+                      onChange={(e) => setEditContent(e.target.value)}
+                      placeholder="내용"
+                    />
+                  </>
+                ) : (
+                  <Content>다른 사용자의 글은 수정할 수 없습니다.</Content> // 다른 사용자의 글
+                )
               ) : (
-                <Input
-                  type="text"
-                  value={editNickname}
-                  onChange={(e) => setEditNickname(e.target.value)}
-                  placeholder="닉네임"
-                />
+                // 비로그인 상태일 때 수정 폼
+                <>
+                  <Input
+                    type="text"
+                    value={editNickname}
+                    onChange={(e) => setEditNickname(e.target.value)}
+                    placeholder="닉네임"
+                  />
+                  <Textarea
+                    value={editContent}
+                    onChange={(e) => setEditContent(e.target.value)}
+                    placeholder="내용"
+                  />
+                  <Input
+                    type="password"
+                    value={editingPassword}
+                    onChange={(e) => setEditingPassword(e.target.value)}
+                    placeholder="비밀번호 (수정 시 필요)"
+                  />
+                </>
               )}
-              <Textarea
-                value={editContent}
-                onChange={(e) => setEditContent(e.target.value)}
-                placeholder="내용"
-              />
-              {!isLoggedIn && ( // 비로그인 시에만 비밀번호 입력
-                <Input
-                  type="password"
-                  value={editingPassword}
-                  onChange={(e) => setEditingPassword(e.target.value)}
-                  placeholder="비밀번호 (수정 시 필요)"
-                />
-              )}
+
               <ButtonGroup>
-                <Button onClick={() => handleUpdateSubmit(item.id)}>저장</Button>
+                {/* 로그인 상태에서 본인 글이거나 비로그인 상태일 때만 저장 버튼 활성화 */}
+                {(isLoggedIn && isAuthor(item.userId)) || !isLoggedIn ? (
+                  <Button onClick={() => handleUpdateSubmit(item.id)}>저장</Button>
+                ) : null}
                 <CancelButton onClick={cancelEdit}>취소</CancelButton>
               </ButtonGroup>
             </>
           ) : (
+            // 일반 보기 모드
             <>
               <Nickname>
-                {item.email ? item.email : item.nickname}
+                {/* userId가 있으면 회원, 없으면 비회원. 회원의 닉네임은 userEmail로 표시 */}
+                {item.userId ? item.nickname : item.nickname}
+                {item.userId && isAuthor(item.userId) && <AuthorBadge> (나)</AuthorBadge>}
               </Nickname>
               <Content>{item.content}</Content>
               <ButtonGroup>
-                <Button onClick={() => startEdit(item)}>수정</Button>
-                <DeleteButton onClick={() => handleDeleteClick(item.id)}>삭제</DeleteButton>
+                {/* 수정/삭제 버튼은 본인 글이거나 비회원 글일 때만 표시 */}
+                {(isLoggedIn && isAuthor(item.userId)) || (!isLoggedIn && item.userId === null) ? (
+                  <>
+                    <Button onClick={() => startEdit(item)}>수정</Button>
+                    <DeleteButton onClick={() => handleDeleteClick(item.id, item.userId)}>삭제</DeleteButton>
+                  </>
+                ) : (
+                  <Button disabled>권한 없음</Button> // 다른 사용자의 글
+                )}
               </ButtonGroup>
             </>
           )}
@@ -121,6 +167,16 @@ function GuestbookList({ list, onDelete, onUpdate }) {
 }
 
 export default GuestbookList;
+
+const AuthorBadge = styled.span` /* 추가 */
+  margin-left: 8px;
+  padding: 2px 8px;
+  background-color: #6a5af9;
+  color: white;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: normal;
+`;
 
 const shake = keyframes`
   0% { transform: rotate(0deg); }
