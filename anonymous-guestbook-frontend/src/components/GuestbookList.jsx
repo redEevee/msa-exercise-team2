@@ -1,80 +1,123 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import styled, { keyframes } from 'styled-components';
 
 function GuestbookList({ list, onDelete, onUpdate }) {
-    const [editingId, setEditingId] = useState(null);
-    const [editContent, setEditContent] = useState('');
-    const [editNickname, setEditNickname] = useState('');
-    const [editingPassword, setEditingPassword] = useState('');
+  const [editingId, setEditingId] = useState(null);
+  const [editContent, setEditContent] = useState('');
+  const [editNickname, setEditNickname] = useState('');
+  const [editingPassword, setEditingPassword] = useState('');
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-    const startEdit = (item, password) => {
-        setEditingId(item.id);
-        setEditContent(item.content);
-        setEditNickname(item.nickname);
-        setEditingPassword(password);
-    };
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    setIsLoggedIn(!!token); 
+  }, []);
 
-    const cancelEdit = () => {
-        setEditingId(null);
-        setEditContent('');
-        setEditNickname('');
-        setEditingPassword('');
-    };
+  const startEdit = (item, password) => {
+    setEditingId(item.id);
+    setEditContent(item.content);
+    if (!isLoggedIn) {
+      setEditNickname(item.nickname);
+      setEditingPassword(''); 
+    } else {
+      setEditNickname(item.email);
+    }    
+  };
 
-    const handleUpdateSubmit = async (id) => {
-        await onUpdate(id, {
-            nickname: editNickname,
-            content: editContent,
-            password: editingPassword,
-        });
-        cancelEdit();
-    };
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditContent('');
+    setEditNickname('');
+    setEditingPassword('');
+  };
 
-    return (
-        <List>
-            {list.map(item => (
-                <Card key={item.id}>
-                    {editingId === item.id ? (
-                        <>
-                            <Input
-                                type="text"
-                                value={editNickname}
-                                onChange={(e) => setEditNickname(e.target.value)}
-                                placeholder="닉네임"
-                            />
-                            <Textarea
-                                value={editContent}
-                                onChange={(e) => setEditContent(e.target.value)}
-                                placeholder="내용"
-                            />
-                            <ButtonGroup>
-                                <Button onClick={() => handleUpdateSubmit(item.id)}>저장</Button>
-                                <CancelButton onClick={cancelEdit}>취소</CancelButton>
-                            </ButtonGroup>
-                        </>
-                    ) : (
-                        <>
-                            <Nickname>{item.nickname}</Nickname>
-                            <Content>{item.content}</Content>
-                            <ButtonGroup>
-                                <Button onClick={() => {
-                                    const password = prompt("비밀번호를 입력하세요");
-                                    if (password) {
-                                        startEdit(item, password);
-                                    }
-                                }}>수정</Button>
-                                <DeleteButton onClick={async () => {
-                                    const password = prompt("비밀번호를 입력하세요");
-                                    if (!password) return;
-                                    await onDelete(item.id, password);
-                                }}>삭제</DeleteButton>
-                            </ButtonGroup>
-                        </>
-                    )}
-                </Card>
-            ))}
-        </List>
-    );
+  const handleUpdateSubmit = async (id) => {
+    const userId = localStorage.getItem('userId'); 
+    let updatedData = { content: editContent };
+
+    if (isLoggedIn) { 
+      updatedData.userId = userId;
+    } else { 
+      if (!editingPassword) {
+        alert("비밀번호를 입력해야 합니다.");
+        return;
+      }
+      updatedData.nickname = editNickname;
+      updatedData.password = editingPassword;
+    }
+
+    await onUpdate(id, updatedData);
+    cancelEdit();
+  };
+
+  const handleDeleteClick = async (id) => {
+    const confirmDelete = window.confirm("정말 삭제하시겠습니까?");
+    if (!confirmDelete) return;
+
+    const userId = localStorage.getItem('userId'); 
+    let payload;
+
+    if (isLoggedIn) { 
+      payload = { userId }; 
+    } else { 
+      const password = prompt("비밀번호를 입력하세요.");
+      if (!password) return; 
+      payload = { password };
+    }
+
+    await onDelete(id, payload);
+  };
+
+  return (
+    <List>
+      {list.map(item => (
+        <Card key={item.id}>
+          {editingId === item.id ? (
+            <>
+              {isLoggedIn ? (
+                <Input type="text" value={item.email} readOnly disabled /> // 로그인 시 이메일은 읽기 전용
+              ) : (
+                <Input
+                  type="text"
+                  value={editNickname}
+                  onChange={(e) => setEditNickname(e.target.value)}
+                  placeholder="닉네임"
+                />
+              )}
+              <Textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                placeholder="내용"
+              />
+              {!isLoggedIn && ( // 비로그인 시에만 비밀번호 입력
+                <Input
+                  type="password"
+                  value={editingPassword}
+                  onChange={(e) => setEditingPassword(e.target.value)}
+                  placeholder="비밀번호 (수정 시 필요)"
+                />
+              )}
+              <ButtonGroup>
+                <Button onClick={() => handleUpdateSubmit(item.id)}>저장</Button>
+                <CancelButton onClick={cancelEdit}>취소</CancelButton>
+              </ButtonGroup>
+            </>
+          ) : (
+            <>
+              <Nickname>
+                {item.email ? item.email : item.nickname}
+              </Nickname>
+              <Content>{item.content}</Content>
+              <ButtonGroup>
+                <Button onClick={() => startEdit(item)}>수정</Button>
+                <DeleteButton onClick={() => handleDeleteClick(item.id)}>삭제</DeleteButton>
+              </ButtonGroup>
+            </>
+          )}
+        </Card>
+      ))}
+    </List>
+  );
 }
 
 export default GuestbookList;

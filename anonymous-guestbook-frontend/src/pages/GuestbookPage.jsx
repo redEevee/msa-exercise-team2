@@ -7,23 +7,36 @@ import {
   postGuestbook,
   deleteGuestbook,
   updateGuestbook,
-} from "../api"; // 수정됨
+} from "../api"; 
 import { useNavigate } from "react-router-dom";
 
 function GuestbookPage() {
   const [list, setList] = useState([]);
   const [isOpen, setIsOpen] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const navigate = useNavigate();
 
-  const navigatelogin = () => {
+  const handleLoginClick = () => {
     navigate("/loginpage");
   };
 
-  // 방명록 목록 불러오기
-  useEffect(() => {
-    fetchGuestbooks();
-  }, []);
+  const handleLogoutClick = () => {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('userId');
+    localStorage.removeItem('userEmail');
+    setIsLoggedIn(false); 
+    alert("로그아웃 되었습니다.");
+    navigate("/"); 
+  };
 
+  useEffect(() => {
+    const token = localStorage.getItem('accessToken');
+    setIsLoggedIn(!!token); 
+    fetchGuestbooks(); 
+  }, [isLoggedIn]);
+
+
+  // 방명록 목록 불러오기
   const fetchGuestbooks = async () => {
     try {
       const res = await getGuestbookList();
@@ -49,6 +62,15 @@ function GuestbookPage() {
     const confirm = window.confirm("정말 삭제하시겠습니까?");
     if (!confirm) return;
 
+    const userId = localStorage.getItem('userId');
+    let payload;
+
+    if (userId) { 
+      payload = { userId }; 
+    } else { 
+      payload = { password }; 
+    }
+
     try {
       await deleteGuestbook(id, password);
       setList((prev) => prev.filter((item) => item.id !== id));
@@ -61,6 +83,13 @@ function GuestbookPage() {
 
   // 글 수정
   const handleUpdate = async (id, updatedItem) => {
+    const userId = localStorage.getItem('userId'); 
+    let payload = { ...updatedItem };
+
+    if (userId) { 
+      payload = { ...payload, userId }; 
+    }
+    
     try {
       await updateGuestbook(id, updatedItem);
       setList((prev) =>
@@ -79,7 +108,11 @@ function GuestbookPage() {
     <>
       <Container>
         <ButtonWrap>
-          <LoginButton onClick={navigatelogin}>로그인</LoginButton>
+          {isLoggedIn ? (
+            <LoginButton onClick={handleLogoutClick}>로그아웃</LoginButton>
+          ) : (
+            <LoginButton onClick={handleLoginClick}>로그인</LoginButton>
+          )}
         </ButtonWrap>
 
         <h1>익명 방명록</h1>

@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import styled from "styled-components";
 import { FaGoogle, FaGithub } from "react-icons/fa";
-import { checkEmailDuplicate, signup, login } from "../api";
+import { checkUsernameDuplicate, signup, login } from "../api";
+import { useNavigate } from "react-router-dom";
 
 const AuthForm = () => {
   const [mode, setMode] = useState("signin");
@@ -11,6 +12,8 @@ const AuthForm = () => {
     repeatPassword: "",
   });
   const [isEmailValid, setIsEmailValid] = useState(null); // null | true | false
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { id, value } = e.target;
@@ -31,16 +34,18 @@ const AuthForm = () => {
       return;
     }
     try {
-      const res = await checkEmailDuplicate(form.email);
-      if (res.data === true) {
-        alert("사용 가능한 이메일입니다.");
+      // 백엔드에는 'username'으로 전달하기 위해 form.email 값을 넘깁니다.
+      const res = await checkUsernameDuplicate(form.email);
+      if (res.data.success === true) {
+        alert(res.data.message);
         setIsEmailValid(true);
       } else {
-        alert("이미 사용 중인 이메일입니다.");
+        alert(res.data.message);
         setIsEmailValid(false);
       }
     } catch (err) {
-      alert("중복 확인 실패");
+      console.error("중복 확인 실패:", err);
+      alert("중복 확인 실패: 서버와 통신할 수 없거나 예상치 못한 오류가 발생했습니다.");
       setIsEmailValid(false);
     }
   };
@@ -58,25 +63,56 @@ const AuthForm = () => {
 
       try {
         await signup({
-          email: form.email,
+          username: form.email, // 백엔드에는 'username'으로 매핑하여 보냄
           password: form.password,
         });
         alert("회원가입 성공! 로그인 해보세요.");
         handleReset();
         setMode("signin");
       } catch (err) {
-        alert("회원가입 실패");
+        console.error("회원가입 실패:", err);
+        alert("회원가입 실패.");
       }
     } else {
       try {
-        await login({
-          email: form.email,
+        const res = await login({
+          username: form.email, // 백엔드에는 'username'으로 매핑하여 보냄
           password: form.password,
         });
-        alert("로그인 성공!");
-        // 이후 토큰 저장 등 처리 가능
+
+        if (res.data.success === true) {
+          const { data } = res.data;
+
+          // --- 수정된 부분 시작 ---
+          // accessToken 대신 백엔드에서 제공하는 user 정보 사용
+          if (data && data.uuid && data.id && data.userEmail) {
+            // 백엔드에서 직접적인 accessToken을 주지 않는다면
+            // userId와 userEmail을 저장하여 인증 상태를 관리할 수 있습니다.
+            // 필요하다면 UUID도 저장할 수 있습니다.
+            localStorage.setItem('userId', data.id);
+            localStorage.setItem('userEmail', data.userEmail); // userEmail 저장
+            localStorage.setItem('accessToken', data.uuid);
+            // 백엔드에서 accessToken을 주지 않는 경우,
+            // 별도의 세션 관리나 토큰 발급 로직이 필요할 수 있습니다.
+            // 여기서는 userEmail과 userId만으로 로그인 상태를 가정합니다.
+            alert("로그인 성공!");
+            navigate('/');
+          } else {
+            console.error("로그인 성공 응답이지만 필수 정보가 없습니다 (id, userEmail):", res.data);
+            alert("로그인 실패: 서버 응답 형식이 올바르지 않습니다.");
+          }
+        } else {
+          alert("로그인 실패: " + res.data.message);
+          localStorage.removeItem('userId');
+          localStorage.removeItem('userEmail');
+          localStorage.removeItem('accessToken');
+
+        }
+        // --- 수정된 부분 끝 ---
+
       } catch (err) {
-        alert("로그인 실패: 이메일 또는 비밀번호를 확인하세요.");
+        console.error("로그인 요청 실패:", err);
+        alert("로그인 실패: 서버와 통신할 수 없거나 예상치 못한 오류가 발생했습니다.");
       }
     }
   };
