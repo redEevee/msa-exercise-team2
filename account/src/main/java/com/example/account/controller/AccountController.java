@@ -25,9 +25,9 @@ public class AccountController {
         return ResponseEntity.ok(accountService.login(request));
     }
 
-    @PostMapping("/checkemail")
-    public ResponseEntity<AccountResponse> checkEmail(@RequestBody SignupRequest request) {
-        boolean exists = accountService.checkEmailExists(request.getUsername());
+    @GetMapping("/checkemail")
+    public ResponseEntity<AccountResponse> checkEmail(@RequestParam String username) {
+        boolean exists = accountService.checkEmailExists(username);
         if (exists) {
             return ResponseEntity.ok(new AccountResponse(false, "이미 존재하는 이메일입니다.", null));
         } else {
